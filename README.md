@@ -2,5 +2,5 @@
 
 ## Usage
 ```
-python minesweeper
+python minesweeper.py
 ```
