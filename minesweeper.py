@@ -10,7 +10,7 @@ import time
 from datetime import time, date, datetime
 
 SIZE_X = 10
-SIZE_Y = 10
+SIZE_Y = 20
 
 STATE_DEFAULT = 0
 STATE_CLICKED = 1
@@ -66,9 +66,8 @@ class Minesweeper:
         self.tiles = dict({})
         self.mines = 0
         for x in range(0, SIZE_X):
+            self.tiles[x] = {} #
             for y in range(0, SIZE_Y):
-                if y == 0:
-                    self.tiles[x] = {}
 
                 id = str(x) + "_" + str(y)
                 isMine = False
@@ -102,10 +101,10 @@ class Minesweeper:
         # loop again to find nearby mines and display number on tile
         for x in range(0, SIZE_X):
             for y in range(0, SIZE_Y):
-                mc = 0
+                mine_count = 0
                 for n in self.getNeighbors(x, y):
-                    mc += 1 if n["isMine"] else 0
-                self.tiles[x][y]["mines"] = mc
+                    mine_count += 1 if n["isMine"] else 0
+                self.tiles[x][y]["mines"] = mine_count
 
     def restart(self):
         self.setup()
@@ -145,14 +144,14 @@ class Minesweeper:
     def getNeighbors(self, x, y):
         neighbors = []
         coords = [
-            {"x": x-1,  "y": y-1},  #top right
+            {"x": x-1,  "y": y-1},  #top left
             {"x": x-1,  "y": y},    #top middle
-            {"x": x-1,  "y": y+1},  #top left
+            {"x": x-1,  "y": y+1},  #top right
             {"x": x,    "y": y-1},  #left
             {"x": x,    "y": y+1},  #right
-            {"x": x+1,  "y": y-1},  #bottom right
+            {"x": x+1,  "y": y-1},  #bottom left
             {"x": x+1,  "y": y},    #bottom middle
-            {"x": x+1,  "y": y+1},  #bottom left
+            {"x": x+1,  "y": y+1},  #bottom right
         ]
         for n in coords:
             try:
@@ -167,7 +166,8 @@ class Minesweeper:
     def onRightClickWrapper(self, x, y):
         return lambda Button: self.onRightClick(self.tiles[x][y])
 
-    def onClick(self, tile):
+    def onClick(self, tile): # 手動, 或自動消除
+        print("[Event] Click: ", tile)
         if self.startTime == None:
             self.startTime = datetime.now()
 
@@ -177,8 +177,9 @@ class Minesweeper:
             return
 
         # change image
-        if tile["mines"] == 0:
+        if tile["mines"] == 0: # there are no mines around
             tile["button"].config(image = self.images["clicked"])
+            print("tile[id]", tile["id"])
             self.clearSurroundingTiles(tile["id"])
         else:
             tile["button"].config(image = self.images["numbers"][tile["mines"]-1])
